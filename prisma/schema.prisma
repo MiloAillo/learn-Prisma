@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int @id @default(autoincrement())
+  email String @unique
+  name String
+  posts Post[]
+  comments Comment[]
+}
+
+model Post {
+  id    Int @id @default(autoincrement())
+  tittle String
+  content String
+  published DateTime @default(now())
+  author User @relation(fields: [authorId], references: [id])
+  authorId Int
+  comments Comment[]
+}
+
+model Comment {
+  id    Int @id @default(autoincrement())
+  text  String
+  createdAt DateTime @default(now())
+  author User @relation(fields: [authorId], references: [id])
+  authorId Int
+  posts Post @relation(fields: [postId], references: [id])
+  postId Int
+}
+
+// 1) Blog + Comments (one-to-many)
+// Scenario:
+// A blog has many posts. Each post can have many comments. A comment belongs to exactly one post and exactly one author (a user).
+
+// Tasks:
+// • Model a User with id, email, name and a back‑relation to their Comment[] and Post[].
+// • Model a Post with id, title, content, published plus authorId FK and comments Comment[].
+// • Model a Comment with id, text, createdAt plus two FKs: authorId → User(id) and postId → Post(id).
+
+// model User {
+// id Int @id @default(autoincrement())
+// email String @unique
+// name String?
+// articles Article[]
+
+// model Article {
+// id Int @id @default(autoincrement())
+// title String
+// body String?
+// author User @relation(fields: [authorId], references: [id])
+// authorId Int
+// }
